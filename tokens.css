@@ -1,0 +1,36 @@
+:root {
+  --color-paper: oklch(98% 0.012 95);
+  --color-paper-2: oklch(95% 0.019 95);
+  --color-panel: oklch(99% 0.005 95);
+  --color-ink: oklch(23% 0.025 250);
+  --color-muted: oklch(43% 0.025 250);
+  --color-line: oklch(87% 0.018 95);
+  --color-pear: oklch(88% 0.16 100);
+  --color-pear-edge: oklch(69% 0.14 100);
+  --color-cyan: oklch(83% 0.065 230);
+  --color-coral: oklch(75% 0.12 25);
+  --color-mint: oklch(83% 0.095 155);
+  --color-focus: oklch(43% 0.12 245);
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-display: clamp(2.5rem, 7vw, 4.5rem);
+  --radius-card: 1.5rem;
+  --radius-pill: 999px;
+  --rule-thin: 1px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 140ms;
+  --dur-med: 220ms;
+}
