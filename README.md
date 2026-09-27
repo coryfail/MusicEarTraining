@@ -18,3 +18,7 @@ Each answer earns 100 points for an exact match, minus 10 points per semitone of
 ```sh
 npm run build
 ```
+
+Pushes to `main` run the tests and deploy the built app to GitHub Pages. The
+relative asset paths also support a custom domain once it is configured in
+GitHub Pages and DNS.
