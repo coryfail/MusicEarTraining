@@ -2,7 +2,7 @@
 
 A small Preact app for learning to identify notes by ear. Choose a number from 1 to 8 in the octave dropdown, hear a note, then pick it on the keyboard. The keyboard fits the entire selected range; 8 uses the full 88-key piano from A0 to C8. Start with white keys, or switch to chromatic notes.
 
-Use **Practice** to learn without a score. It starts with a three-note focus set around C4; switch to five notes or the full selected range whenever you are ready. A wrong guess plays your key and then the target, tells you how far high or low you were, and lets you keep trying until you find it. Notes you miss reappear more often. **Test** keeps the original one-guess scoring game. Each activity keeps its own white/all-note and octave settings, so practice never changes your test score.
+Use **Practice** to learn without a score. It starts with a three-note focus set around C4; switch to five notes or the full selected range whenever you are ready. A wrong guess plays your key and then the target, tells you how far high or low you were, and lets you keep trying until you find it. Recent notes wait before reappearing, while missed notes get extra weight in larger sets. **Test** keeps the original one-guess scoring game and draws through every note in the range before repeating. Each activity keeps its own white/all-note and octave settings, so practice never changes your test score.
 
 ## Run locally
 

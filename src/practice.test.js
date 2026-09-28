@@ -12,8 +12,19 @@ test('a small focus set starts near C4 and grows without leaving the test range'
   assert.equal(focusNotes(practiceNotes('chromatic', 8), 'all').length, 88)
 })
 
-test('missed notes receive more practice weight and the previous note is avoided', () => {
-  const notes = [NOTES[60 - 21], NOTES[62 - 21], NOTES[64 - 21]]
-  assert.equal(pickPracticeNote(notes, 60, { 64: 2 }, () => 0.3).midi, 64)
-  assert.equal(pickPracticeNote(notes, 60, { 60: 4 }, () => 0).midi, 62)
+test('practice gives missed notes more weight without repeating either recent note', () => {
+  const notes = [60, 62, 64, 65, 67].map((midi) => NOTES[midi - 21])
+  assert.equal(pickPracticeNote(notes, [60, 62], { 65: 2 }, () => 0.3).midi, 65)
+
+  const smallSet = notes.slice(0, 3)
+  let recent = []
+  const drawn = []
+  for (let index = 0; index < 15; index += 1) {
+    const next = pickPracticeNote(smallSet, recent, {}, () => 0)
+    drawn.push(next.midi)
+    recent = [...recent, next.midi].slice(-2)
+  }
+  for (let index = 2; index < drawn.length; index += 1) {
+    assert.equal(new Set(drawn.slice(index - 2, index + 1)).size, 3)
+  }
 })

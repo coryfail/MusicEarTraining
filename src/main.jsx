@@ -1,6 +1,6 @@
 import { render } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
-import { NOTES, OCTAVE_RANGES, pickNote, playNote, practiceNotes } from './audio.js'
+import { NOTES, OCTAVE_RANGES, drawTestNote, playNote, practiceNotes, stopNote } from './audio.js'
 import { focusNotes, pickPracticeNote } from './practice.js'
 import { scoreAnswer } from './scoring.js'
 import './styles.css'
@@ -29,6 +29,9 @@ function App() {
   const octaveCountRef = useRef(octaveCount)
   const focusSizeRef = useRef(focusSize)
   const missesRef = useRef({})
+  const testBagRef = useRef([])
+  const testRecentRef = useRef([])
+  const practiceRecentRef = useRef([])
   const comparisonTimerRef = useRef(null)
 
   const range = OCTAVE_RANGES.find((option) => option.count === octaveCount)
@@ -68,6 +71,7 @@ function App() {
   function stopComparison() {
     if (comparisonTimerRef.current) window.clearTimeout(comparisonTimerRef.current)
     comparisonTimerRef.current = null
+    stopNote()
   }
 
   function playSingle(note) {
@@ -98,9 +102,16 @@ function App() {
   function nextNote() {
     stopComparison()
     const pool = practiceNotes(modeRef.current, octaveCountRef.current)
-    const next = activityRef.current === 'practice'
-      ? pickPracticeNote(focusNotes(pool, focusSizeRef.current), targetRef.current?.midi, missesRef.current)
-      : pickNote(pool, targetRef.current?.semitone)
+    let next
+    if (activityRef.current === 'practice') {
+      next = pickPracticeNote(focusNotes(pool, focusSizeRef.current), practiceRecentRef.current, missesRef.current)
+      practiceRecentRef.current = [...practiceRecentRef.current, next.midi].slice(-2)
+    } else {
+      const draw = drawTestNote(pool, testBagRef.current, testRecentRef.current)
+      next = draw.note
+      testBagRef.current = draw.remaining
+      testRecentRef.current = [...testRecentRef.current, next.midi].slice(-2)
+    }
     targetRef.current = next
     answerRef.current = null
     setTarget(next)
@@ -144,6 +155,8 @@ function App() {
   }
 
   function resetScore() {
+    testBagRef.current = []
+    testRecentRef.current = []
     setRound(0)
     setCorrect(0)
     setTotalScore(0)
@@ -153,6 +166,7 @@ function App() {
 
   function resetPractice() {
     missesRef.current = {}
+    practiceRecentRef.current = []
     setPracticeSolved(0)
     clearQuestion()
   }
@@ -301,7 +315,7 @@ function App() {
           </div>
         </section>
 
-        {isPractice ? <div class="practice-summary"><div><p class="section-label">Practice progress</p><h2>{practiceSolved} {practiceSolved === 1 ? 'note' : 'notes'} found in this set</h2><p>Wrong guesses bring that note back more often. Your test score stays untouched.</p></div>{focusSize !== 'all' && practiceSolved >= (focusSize === 3 ? 3 : 5) && <button class="btn btn-secondary" type="button" onClick={() => changeFocusSize(focusSize === 3 ? 5 : 'all')}>Try {focusSize === 3 ? '5 notes' : 'full range'} →</button>}</div> : <><div class="stats-heading"><h2>Session score</h2><button class="reset-button" type="button" onClick={resetScore} disabled={round === 0 && !target}>Reset score</button></div>
+        {isPractice ? <div class="practice-summary"><div><p class="section-label">Practice progress</p><h2>{practiceSolved} {practiceSolved === 1 ? 'note' : 'notes'} found in this set</h2><p>Recent notes take a turn off; larger sets revisit missed notes more often. Your test score stays untouched.</p></div>{focusSize !== 'all' && practiceSolved >= (focusSize === 3 ? 3 : 5) && <button class="btn btn-secondary" type="button" onClick={() => changeFocusSize(focusSize === 3 ? 5 : 'all')}>Try {focusSize === 3 ? '5 notes' : 'full range'} →</button>}</div> : <><div class="stats-heading"><h2>Session score</h2><button class="reset-button" type="button" onClick={resetScore} disabled={round === 0 && !target}>Reset score</button></div>
         <div class="stats-row" aria-label="Test statistics">
           <div class="stat"><strong>{totalScore}</strong><p>total points</p></div>
           <div class="stat"><strong>{round ? Math.round(totalScore / round) : 0}<span> / 100</span></strong><p>average score</p></div>

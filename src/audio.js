@@ -54,20 +54,29 @@ export function practiceNotes(mode, octaveCount) {
 
 let context
 let activeGain
+let playbackVersion = 0
+
+export function stopNote() {
+  playbackVersion += 1
+  if (!activeGain || !context) return
+  const now = context.currentTime
+  activeGain.gain.cancelScheduledValues(now)
+  activeGain.gain.setTargetAtTime(0.0001, now, 0.003)
+  activeGain = null
+}
 
 export async function playNote(semitone) {
   const AudioContext = window.AudioContext || window.webkitAudioContext
   if (!AudioContext) throw new Error('This browser does not support Web Audio.')
   context ??= new AudioContext()
+  stopNote()
+  const requestVersion = playbackVersion
   if (context.state === 'suspended') await context.resume()
+  if (requestVersion !== playbackVersion) return
 
   // Semitone 0 is C4 (MIDI 60); the range can cover the whole 88-key piano.
   const frequency = 440 * 2 ** ((60 + semitone - 69) / 12)
   const now = context.currentTime
-  if (activeGain) {
-    activeGain.gain.cancelScheduledValues(now)
-    activeGain.gain.setTargetAtTime(0.0001, now, 0.01)
-  }
   const gain = context.createGain()
   activeGain = gain
   gain.gain.setValueAtTime(0.0001, now)
@@ -96,7 +105,20 @@ export async function playNote(semitone) {
   }, 1850)
 }
 
-export function pickNote(pool, previous) {
-  const candidates = pool.filter((note) => note.semitone !== previous)
-  return candidates[Math.floor(Math.random() * candidates.length)]
+export function drawTestNote(pool, remaining = [], recentMidi = [], random = Math.random) {
+  const bag = [...(remaining.length ? remaining : pool)]
+
+  if (!remaining.length) {
+    for (let index = bag.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(random() * (index + 1))
+      ;[bag[index], bag[swapIndex]] = [bag[swapIndex], bag[index]]
+    }
+
+    // Keep the first draw of a new bag away from the last two draws.
+    const recent = new Set(recentMidi.slice(-Math.min(2, pool.length - 1)))
+    const freshIndex = bag.findIndex((note) => !recent.has(note.midi))
+    if (freshIndex > 0) [bag[0], bag[freshIndex]] = [bag[freshIndex], bag[0]]
+  }
+
+  return { note: bag[0], remaining: bag.slice(1) }
 }

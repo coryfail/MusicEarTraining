@@ -7,8 +7,9 @@ export function focusNotes(notes, size) {
     .sort((a, b) => a.midi - b.midi)
 }
 
-export function pickPracticeNote(notes, previousMidi, misses = {}, random = Math.random) {
-  const candidates = notes.length > 1 ? notes.filter((note) => note.midi !== previousMidi) : notes
+export function pickPracticeNote(notes, recentMidi = [], misses = {}, random = Math.random) {
+  const recent = new Set(recentMidi.slice(-Math.min(2, notes.length - 1)))
+  const candidates = notes.filter((note) => !recent.has(note.midi))
   const weights = candidates.map((note) => 1 + Math.min(misses[note.midi] || 0, 4) * 2)
   const total = weights.reduce((sum, weight) => sum + weight, 0)
   let pick = random() * total
