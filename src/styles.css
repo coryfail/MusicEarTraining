@@ -117,6 +117,23 @@ h1 span { color: var(--color-focus); }
 .stat strong span { color: var(--color-muted); font-size: 0.52em; }
 .stat p { margin: var(--space-sm) 0 0; color: var(--color-muted); font-size: var(--text-sm); }
 .score-rule { margin: var(--space-lg) 0 0; color: var(--color-muted); font-size: var(--text-sm); text-align: center; }
+.coach-card { position: relative; margin-top: var(--space-xl); padding: clamp(1.25rem, 3vw, 2rem); overflow: hidden; border: var(--rule-thin) solid var(--color-focus); border-radius: 1.25rem; background: var(--color-focus); }
+.coach-card::after { content: ''; position: absolute; width: 9rem; height: 9rem; right: -3.25rem; top: -3.25rem; border-radius: 50%; background: var(--color-cyan); opacity: 0.6; }
+.coach-heading { position: relative; z-index: 1; display: flex; align-items: start; justify-content: space-between; gap: var(--space-md); }
+.coach-heading .section-label { color: var(--color-ink); opacity: 0.7; }
+.coach-heading h2 { max-width: 28ch; margin-bottom: 0; font-size: var(--text-xl); line-height: 1.2; letter-spacing: -0.04em; }
+.coach-spark { position: relative; z-index: 1; display: grid; width: 2.5rem; height: 2.5rem; flex: none; place-items: center; border-radius: 0.8rem; background: var(--color-panel); color: var(--color-focus); font-size: 1.35rem; transform: rotate(8deg); }
+.coach-insight, .coach-empty-copy { position: relative; z-index: 1; max-width: 62ch; margin: var(--space-md) 0 0; color: var(--color-ink); }
+.coach-empty-copy { margin-bottom: 0; }
+.coach-focus { position: relative; z-index: 1; display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-lg); padding-top: var(--space-md); border-top: var(--rule-thin) solid rgba(31, 38, 29, 0.22); }
+.coach-focus span { color: var(--color-ink); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; opacity: 0.7; }
+.coach-focus strong { font-size: var(--text-lg); }
+.coach-steps { position: relative; z-index: 1; display: grid; gap: var(--space-sm); margin: var(--space-lg) 0 0; padding-left: 1.5rem; }
+.coach-steps li { padding-left: 0.35rem; }
+.coach-action { position: relative; z-index: 1; margin-top: var(--space-lg); border-color: var(--color-ink); background: var(--color-panel); box-shadow: 0 3px 0 var(--color-ink); }
+.coach-action:hover { box-shadow: 0 5px 0 var(--color-ink); }
+.coach-card-empty { background: var(--color-paper-2); border-color: var(--color-line); }
+.coach-card-empty::after { display: none; }
 .help-line { margin: var(--space-lg) 0 0; color: var(--color-muted); font-size: var(--text-sm); text-align: center; }
 kbd { display: inline-block; min-width: 1.3em; padding: 0 0.2em; border: var(--rule-thin) solid var(--color-line); border-radius: 0.3rem; background: var(--color-panel); color: var(--color-ink); font-family: var(--font-mono); font-size: 0.85em; }
 .footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); min-height: 70px; border-top: var(--rule-thin) solid var(--color-line); color: var(--color-muted); font-size: var(--text-sm); }

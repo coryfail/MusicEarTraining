@@ -15,6 +15,8 @@ The sound is synthesized in the browser with Web Audio, so there are no audio fi
 
 In Test, each answer earns 100 points for an exact match, minus 10 points per semitone of distance (minimum 0). The app shows your average score, exact matches, and exact-match streak for the current session. **Reset score** clears the test session and current question while keeping your note mode and range.
 
+The Test view also includes a local adaptive coach. It analyzes the current session’s exact matches, miss distance, high/low guessing bias, and weakest target notes, then suggests a short three-step practice plan. **Practice this plan** carries the recommended note mode and focus-set size into Practice. It runs in the browser with no account, API key, or external service; a hosted language-model coach could be added later behind a server endpoint if more open-ended feedback is needed.
+
 ## Build
 
 ```sh

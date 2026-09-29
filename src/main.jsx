@@ -1,6 +1,7 @@
 import { render } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { NOTES, OCTAVE_RANGES, drawTestNote, playNote, practiceNotes, stopNote } from './audio.js'
+import { analyzeAttempts, buildCoachPlan } from './coach.js'
 import { focusNotes, pickPracticeNote } from './practice.js'
 import { scoreAnswer } from './scoring.js'
 import './styles.css'
@@ -21,6 +22,7 @@ function App() {
   const [audioError, setAudioError] = useState('')
   const [practiceAttempts, setPracticeAttempts] = useState(0)
   const [practiceSolved, setPracticeSolved] = useState(0)
+  const [attempts, setAttempts] = useState([])
   const targetRef = useRef(null)
   const answerRef = useRef(null)
   const activityRef = useRef(activity)
@@ -52,6 +54,8 @@ function App() {
   const distanceLabel = roundResult?.distance === 1 ? '1 semitone' : `${roundResult?.distance} semitones`
   const isPractice = activity === 'practice'
   const canGuess = target && (!answer || (isPractice && !isCorrect))
+  const coachAnalysis = analyzeAttempts(attempts)
+  const coachPlan = coachAnalysis?.attempts >= 3 ? buildCoachPlan(coachAnalysis) : null
 
   function keyClass(note) {
     const selected = answer?.semitone === note.semitone
@@ -99,6 +103,20 @@ function App() {
     setAudioError('')
   }
 
+  function recordAttempt(note, result) {
+    setAttempts((previous) => [...previous, {
+      targetMidi: targetRef.current.midi,
+      targetLabel: targetRef.current.label,
+      answerMidi: note.midi,
+      answerLabel: note.label,
+      distance: result.distance,
+      direction: result.direction,
+      points: result.points,
+      mode: modeRef.current,
+      octaveCount: octaveCountRef.current,
+    }].slice(-200))
+  }
+
   function nextNote() {
     stopComparison()
     const pool = practiceNotes(modeRef.current, octaveCountRef.current)
@@ -144,6 +162,7 @@ function App() {
     playSingle(note)
     answerRef.current = note
     setAnswer(note)
+    recordAttempt(note, result)
     setRound((value) => value + 1)
     setTotalScore((value) => value + result.points)
     if (note.semitone === targetRef.current.semitone) {
@@ -161,6 +180,7 @@ function App() {
     setCorrect(0)
     setTotalScore(0)
     setStreak(0)
+    setAttempts([])
     clearQuestion()
   }
 
@@ -206,6 +226,20 @@ function App() {
     setOctaveCount(nextCount)
     if (activityRef.current === 'test') resetScore()
     else resetPractice()
+  }
+
+  function useCoachPlan() {
+    if (!coachPlan) return
+    const nextMode = coachPlan.recommendedMode
+    const nextFocusSize = coachPlan.recommendedFocusSize
+    settingsRef.current.practice.mode = nextMode
+    settingsRef.current.practice.octaveCount = octaveCountRef.current
+    activityRef.current = 'practice'
+    modeRef.current = nextMode
+    setActivity('practice')
+    setMode(nextMode)
+    setFocusSize(nextFocusSize)
+    resetPractice()
   }
 
   useEffect(() => {
@@ -322,6 +356,19 @@ function App() {
           <div class="stat"><strong>{correct}<span> / {round}</span></strong><p>exact matches</p></div>
           <div class="stat"><strong>{streak}</strong><p>exact streak</p></div>
         </div>
+        <section class={`coach-card ${coachPlan ? '' : 'coach-card-empty'}`} aria-labelledby="coach-title">
+          <div class="coach-heading">
+            <div><p class="section-label">Local AI coach</p><h2 id="coach-title">{coachPlan ? coachPlan.headline : 'Your plan will get smarter as you play'}</h2></div>
+            <span class="coach-spark" aria-hidden="true">✦</span>
+          </div>
+          {!coachPlan && <p class="coach-empty-copy">Answer a few test notes and I’ll look for patterns in the notes you miss, your pitch direction, and your accuracy.</p>}
+          {coachPlan && <>
+            <p class="coach-insight">{coachPlan.insight}</p>
+            <div class="coach-focus"><span>Focus next</span><strong>{coachPlan.weakNotes.length > 0 ? coachPlan.weakNotes.join(' · ') : 'Keep building consistency'}</strong></div>
+            <ol class="coach-steps">{coachPlan.steps.map((step) => <li key={step}>{step}</li>)}</ol>
+            <button class="btn btn-secondary coach-action" type="button" onClick={useCoachPlan}>Practice this plan <span aria-hidden="true">→</span></button>
+          </>}
+        </section>
         <p class="score-rule">Scoring: 100 points for an exact match, minus 10 for each semitone away.</p></>}
         <p class="help-line">Keyboard: {octaveCount === 1 && showNoteLabels ? 'use the letters shown on the keys · ' : ''}<kbd>Space</kbd> to replay · <kbd>Enter</kbd> for the next note{isPractice ? ' after finding it' : ''}</p>
       </main>
